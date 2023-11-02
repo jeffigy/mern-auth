@@ -14,11 +14,12 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 type RegisterProps = {};
 
 const Register: React.FC<RegisterProps> = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [inputs, setInputs] = useState({
     name: "",
@@ -26,13 +27,13 @@ const Register: React.FC<RegisterProps> = () => {
     password: "",
     confirmPassword: "",
   });
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const handlePassword = () => setShowPassword(!showPassword);
-  const handleConfirmPassword = () =>
-    setShowConfirmPassword(!showConfirmPassword);
+  // const handleConfirmPassword = () =>
+  //   setShowConfirmPassword(!showConfirmPassword);
 
-  const { name, email, password, confirmPassword } = inputs;
+  const { name, email, password } = inputs;
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
   };
@@ -47,8 +48,17 @@ const Register: React.FC<RegisterProps> = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      // const data = await res.json();
-      setInputs({ ...inputs, name: "", email: "", password: "" });
+      const data = await res.json();
+      if (data.status === "ok") {
+        navigate("/dashboard");
+      }
+      setInputs({
+        ...inputs,
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
       setLoading(false);
     } catch (error) {
       console.error((error as Error).message);
@@ -117,7 +127,7 @@ const Register: React.FC<RegisterProps> = () => {
                 </InputGroup>
               </FormControl>
 
-              <FormControl>
+              {/* <FormControl>
                 <FormLabel>Confirm Password</FormLabel>
                 <InputGroup>
                   <Input
@@ -137,7 +147,7 @@ const Register: React.FC<RegisterProps> = () => {
                     />
                   </InputRightElement>
                 </InputGroup>
-              </FormControl>
+              </FormControl> */}
 
               <Stack spacing={2}>
                 <Button

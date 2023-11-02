@@ -12,11 +12,13 @@ import {
   InputGroup,
   InputRightElement,
   IconButton,
+  useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function SimpleCard() {
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [inputs, setInputs] = useState({
     email: "",
@@ -33,6 +35,30 @@ export default function SimpleCard() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
+    const body = { email, password };
+    try {
+      const response = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      if (data.user) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        window.location.href = "/dashboard";
+        setLoading(false);
+      } else {
+        toast({
+          title: "Error",
+          description: "Please check your username and password",
+          status: "error",
+        });
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error((error as Error).message);
+    }
   }
   return (
     <Flex

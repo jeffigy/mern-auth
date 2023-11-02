@@ -2,7 +2,8 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const mongoose = require("mongoose");
-
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const mongoDBURL = require("./config.js").mongoDBURL;
 const User = require("./models/user.model");
 
@@ -22,15 +23,17 @@ mongoose
   });
 
 app.post("/api/register", async (req, res) => {
+  console.log(req.body);
   try {
+    const newPassword = await bcrypt.hash(req.body.password, 10);
     await User.create({
       name: req.body.name,
       email: req.body.email,
-      password: req.body.password,
+      password: newPassword,
     });
     res.json({ status: "ok" });
-  } catch (error) {
-    re.json({ status: "error", error: "Duplicate inputs" });
+  } catch (err) {
+    res.json({ status: "error", error: "Duplicate email" });
   }
 });
 
